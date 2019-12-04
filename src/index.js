@@ -19,7 +19,10 @@ const constructKey = ({prefix, k}) => (!!prefix ? prefix + "." + k : k);
 
 export const DefaultTranslatorsHint = ({k, language, translate, ...props}) => (
     <div className={styles.TranslatorsHint}>
-        Key: {k}; Language: {language}; Translation: {translate(k)}
+        Key: {k};
+        Language: {language};
+        TranslationString: {translate({k, interpolate:false})}
+        Translated: {translate({k, interpolate:true, params:props})}
     </div>
 );
 
@@ -31,19 +34,32 @@ export const TranslationProvider = ({fetch, translatorsHint=DefaultTranslatorsHi
     const [prefix, setPrefix] = useState(defaultPrefix);
 
     const translate = useCallback((isTranslating && translations[language]
-            ? (k) => {
+            ? ({k, addLineBreaks=true, doInterpolate=true, params={}}) => {
                 let string = null;
                 if(!!prefix){
                     string = translations[language][prefix + "." + k];
 
                     if(string){
+                        if(doInterpolate){
+                            return interpolate({str: string, addLineBreaks, params});
+                        }
                         return string;
                     }
                 }
-                string = translations[language][k];
+                if(!string){
+                    string = translations[language][k];
+                }
+
+
+                if(string){
+                    if(doInterpolate){
+                        return interpolate({str: string, addLineBreaks, params});
+                    }
+                    return string;
+                }
                 return string ? string : constructKeyWithLanguage({language, k, prefix});
             }
-            : (k) => {
+            : ({k}) => {
                 return constructKeyWithLanguage({language, k, prefix})
             }
     ), [translations, isTranslating, language, languages, prefix]);
@@ -111,7 +127,60 @@ export const usePrefix = () => {
     return [prefix, setPrefix];
 };
 
-const Translate = ({k, ...props}) => {
+function splitAndAddLineBreaks(str){
+    let parts = str.split("\n");
+    let result = [];
+
+    for(let i=0;i<parts.length-1;i++){
+        result.push(parts[i]);
+        result.push(<br/>);
+    }
+    result.push(parts[parts.length-1]);
+    return result;
+}
+
+const paramRegex = /\{\{([a-zA-Z0-9_-]+)\}\}/g;
+export const interpolate = ({str, params, addLineBreaks=true}) => {
+    let result = [];
+    let index = 0;
+    let match;
+    let part;
+
+    while(true){
+        match = paramRegex.exec(str);
+
+        if(!match){
+            break;
+        }
+
+        if(match.index > index){
+            part = str.substring(index, match.index);
+            if(addLineBreaks){
+                result = result.concat(splitAndAddLineBreaks(part));
+            }
+            else{
+                result.push(part);
+            }
+        }
+        result.push(params[match[1]]);
+        index = match.index + match[0].length;
+    }
+
+    if(index + 1 < str.length){
+        part = str.substring(index);
+
+        if(addLineBreaks){
+            result = result.concat(splitAndAddLineBreaks(part));
+        }
+        else{
+            result.push(part);
+        }
+    }
+
+    return result;
+};
+
+const Translate = ({k, addLineBreaks=true, ...props}) => {
     const {translate, language, translations, isTranslating, translatorsHint:TranslatorsHint} = useContext(TranslationContext);
 
     if(!isTranslating && TranslatorsHint){
@@ -123,7 +192,7 @@ const Translate = ({k, ...props}) => {
             />
     }
     else{
-        return translate(k)
+        return translate({k, params:props, addLineBreaks});
     }
 };
 

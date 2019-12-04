@@ -8,9 +8,9 @@ const getTranslatePromise = (data) => (
 
 const data = {
     de:{
-        "test1": "Dies ist der erste Test",
-        "prefixed.test1" : "Dies ist ein prefixter Text",
-        "test2": "Dies ist der zweite Test",
+        "test1": "Dies ist der erste {{test}}",
+        "prefixed.test1" : "Dies ist ein prefixter {{test}}",
+        "test2": "Dies ist der:\n zweite Test",
         "test3": "Dies ist der dritte Test",
     },
     en:{
@@ -44,7 +44,7 @@ const ChangePrefix = () => {
 const App = (props) => (
     <TranslationProvider fetch={getTranslatePromise(data)} defaultLanguage="en" defaultPrefix="">
         <ul>
-            <li><Translate k="test1"/></li>
+            <li><Translate k="test1" test={<big>EGAL</big>}/></li>
             <li><Translate k="test2"/></li>
             <li><Translate k="test3"/></li>
         </ul>
