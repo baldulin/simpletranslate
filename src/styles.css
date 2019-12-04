@@ -1,0 +1,6 @@
+/* add css styles here (optional) */
+
+.TranslatorsHint {
+    display:flex;
+    flex-direction:row;
+}
