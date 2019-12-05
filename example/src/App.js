@@ -21,7 +21,7 @@ const data = {
 };
 
 const ChangeLanguage = () => {
-    const [language, setLanguage] = useLanguage();
+    const [language, languages, setLanguage] = useLanguage();
     return <button onClick={() => setLanguage(language === "en" ? "de" : "en")}>
         {language === "en" ? "Deutsch" : "English"}
     </button>
