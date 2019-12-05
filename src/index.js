@@ -113,8 +113,8 @@ export const useTranslation = (k) => {
 };
 
 export const useLanguage = () => {
-    const {language, setLanguage} = useContext(TranslationContext);
-    return [language, setLanguage];
+    const {language, languages, setLanguage} = useContext(TranslationContext);
+    return [language, languages, setLanguage];
 };
 
 export const useIsTranslating = () => {

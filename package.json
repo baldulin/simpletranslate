@@ -1,6 +1,6 @@
 {
   "name": "simpletranslate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple react translation library based on hooks without any dependency",
   "author": "badulin@systemli.org",
   "license": "MIT",
